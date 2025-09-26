@@ -32,20 +32,20 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleConnect(serverId: string, serverConfig: any) {
+async function handleConnect(serverId: string, serverConfig: Record<string, unknown>) {
   try {
     console.log("Connecting to server with config:", serverConfig); // Debug log
     
     const server: MCPServer = {
       id: serverId,
-      name: serverConfig.name,
-      transport: serverConfig.transport || "stdio", // Default to stdio
-      command: serverConfig.command,
-      args: serverConfig.args,
-      env: serverConfig.env,
-      url: serverConfig.url,
-      headers: serverConfig.headers,
-      description: serverConfig.description,
+      name: serverConfig.name as string,
+      transport: ((serverConfig.transport as string) || "stdio") as "stdio" | "http", // Default to stdio
+      command: serverConfig.command as string,
+      args: serverConfig.args as string[],
+      env: serverConfig.env as Record<string, string>,
+      url: serverConfig.url as string,
+      headers: serverConfig.headers as Record<string, string>,
+      description: serverConfig.description as string,
       status: "disconnected",
       createdAt: new Date(),
       updatedAt: new Date()
@@ -98,19 +98,19 @@ async function handleDisconnect(serverId: string) {
   }
 }
 
-async function handleTest(serverConfig: any) {
+async function handleTest(serverConfig: Record<string, unknown>) {
   try {
     console.log("Testing server config:", serverConfig); // Debug log
     
     const isValid = await mcpServerManager.testConnection({
-      name: serverConfig.name,
-      transport: serverConfig.transport || "stdio", // Default to stdio if not provided
-      command: serverConfig.command,
-      args: serverConfig.args,
-      env: serverConfig.env,
-      url: serverConfig.url,
-      headers: serverConfig.headers,
-      description: serverConfig.description
+      name: serverConfig.name as string,
+      transport: ((serverConfig.transport as string) || "stdio") as "stdio" | "http", // Default to stdio if not provided
+      command: serverConfig.command as string,
+      args: serverConfig.args as string[],
+      env: serverConfig.env as Record<string, string>,
+      url: serverConfig.url as string,
+      headers: serverConfig.headers as Record<string, string>,
+      description: serverConfig.description as string
     });
 
     if (isValid) {

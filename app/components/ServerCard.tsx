@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Server, Play, Square, Settings, Trash2, ChevronDown, ChevronRight, AlertCircle, CheckCircle, Clock, PowerOff, Wrench, FileText, MessageSquare, Eye } from "lucide-react";
+import { Play, Square, Settings, Trash2, ChevronDown, ChevronRight, AlertCircle, CheckCircle, Clock, PowerOff, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MCPServer } from "@/types/mcp";
@@ -27,7 +27,7 @@ export function ServerCard({ server, onConnect, onDisconnect, onEdit, onDetails,
     setMcpConnection(connection || null);
 
     // Listen for connection changes
-    const handleEvent = (event: any) => {
+    const handleEvent = (event: { serverId: string }) => {
       if (event.serverId === server.id) {
         const connection = mcpClientManager.getConnection(server.id);
         setMcpConnection(connection || null);
@@ -128,10 +128,10 @@ export function ServerCard({ server, onConnect, onDisconnect, onEdit, onDetails,
                 </span>
                 {mcpConnection && mcpConnection.capabilities && (
                   <span className="text-green-600 font-medium shrink-0">
-                    • {Object.entries(mcpConnection.capabilities)
-                      .filter(([_, enabled]) => enabled)
-                      .map(([capability]) => capability.charAt(0).toUpperCase())
-                      .join("")}
+                    • {                        Object.entries(mcpConnection.capabilities)
+                          .filter(([, enabled]) => enabled)
+                          .map(([capability]) => capability.charAt(0).toUpperCase())
+                          .join("")}
                   </span>
                 )}
               </div>
@@ -255,14 +255,14 @@ export function ServerCard({ server, onConnect, onDisconnect, onEdit, onDetails,
               <div className="col-span-2">
                 <span className="text-muted-foreground text-xs">MCP 기능:</span>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {Object.entries(mcpConnection.capabilities)
-                    .filter(([_, enabled]) => enabled)
-                    .map(([capability]) => (
-                      <Badge key={capability} variant="secondary" className="text-xs">
-                        {capability}
-                      </Badge>
-                    ))
-                  }
+                    {Object.entries(mcpConnection.capabilities)
+                      .filter(([, enabled]) => enabled)
+                      .map(([capability]) => (
+                        <Badge key={capability} variant="secondary" className="text-xs">
+                          {capability}
+                        </Badge>
+                      ))
+                    }
                 </div>
               </div>
             )}

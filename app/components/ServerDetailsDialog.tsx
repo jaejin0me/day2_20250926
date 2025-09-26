@@ -28,7 +28,6 @@ interface ServerDetailsDialogProps {
 
 export function ServerDetailsDialog({ server, isOpen, onClose }: ServerDetailsDialogProps) {
   const [mcpConnection, setMcpConnection] = useState<MCPConnection | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (server && isOpen) {
@@ -37,7 +36,7 @@ export function ServerDetailsDialog({ server, isOpen, onClose }: ServerDetailsDi
       setMcpConnection(connection || null);
 
       // Listen for connection changes
-      const handleEvent = (event: any) => {
+      const handleEvent = (event: { serverId: string }) => {
         if (event.serverId === server.id) {
           const connection = mcpClientManager.getConnection(server.id);
           setMcpConnection(connection || null);

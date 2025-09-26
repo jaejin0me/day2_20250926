@@ -24,7 +24,7 @@ export interface MCPConnection {
   tools?: Array<{
     name: string;
     description?: string;
-    inputSchema?: any;
+    inputSchema?: Record<string, unknown>;
   }>;
   prompts?: Array<{
     name: string;
@@ -78,7 +78,7 @@ class MCPServerManager {
             // Note: StreamableHTTPClientTransport might not support custom headers directly
             // This would need to be handled at the request level
           }
-        } catch (error) {
+        } catch {
           // Fallback to SSE transport
           transport = new SSEClientTransport(new URL(server.url));
         }
@@ -147,21 +147,21 @@ class MCPServerManager {
       try {
         await client.listResources();
         capabilities.resources = true;
-      } catch (error) {
+      } catch {
         // Server doesn't support resources
       }
 
       try {
         await client.listTools();
         capabilities.tools = true;
-      } catch (error) {
+      } catch {
         // Server doesn't support tools
       }
 
       try {
         await client.listPrompts();
         capabilities.prompts = true;
-      } catch (error) {
+      } catch {
         // Server doesn't support prompts
       }
 
@@ -182,8 +182,8 @@ class MCPServerManager {
     try {
       const response = await client.listResources();
       return response.resources || [];
-    } catch (error) {
-      console.error("Error getting resources:", error);
+    } catch {
+      console.error("Error getting resources");
       return [];
     }
   }
@@ -194,8 +194,8 @@ class MCPServerManager {
     try {
       const response = await client.listTools();
       return response.tools || [];
-    } catch (error) {
-      console.error("Error getting tools:", error);
+    } catch {
+      console.error("Error getting tools");
       return [];
     }
   }
@@ -206,8 +206,8 @@ class MCPServerManager {
     try {
       const response = await client.listPrompts();
       return response.prompts || [];
-    } catch (error) {
-      console.error("Error getting prompts:", error);
+    } catch {
+      console.error("Error getting prompts");
       return [];
     }
   }
@@ -220,7 +220,7 @@ class MCPServerManager {
     return Array.from(this.connections.values());
   }
 
-  async callTool(serverId: string, toolName: string, args: Record<string, any>) {
+  async callTool(serverId: string, toolName: string, args: Record<string, unknown>): Promise<unknown> {
     const connection = this.connections.get(serverId);
     if (!connection || !connection.isConnected) {
       throw new Error(`Server ${serverId} is not connected`);
@@ -254,7 +254,7 @@ class MCPServerManager {
     }
   }
 
-  async getPrompt(serverId: string, promptName: string, args: Record<string, any>) {
+  async getPrompt(serverId: string, promptName: string, args: Record<string, unknown>) {
     const connection = this.connections.get(serverId);
     if (!connection || !connection.isConnected) {
       throw new Error(`Server ${serverId} is not connected`);
@@ -263,7 +263,7 @@ class MCPServerManager {
     try {
       const result = await connection.client.getPrompt({
         name: promptName,
-        arguments: args
+        arguments: args as { [x: string]: string }
       });
       
       return result;
@@ -304,7 +304,7 @@ class MCPServerManager {
         // Try Streamable HTTP first, fallback to SSE
         try {
           transport = new StreamableHTTPClientTransport(new URL(serverConfig.url));
-        } catch (error) {
+        } catch {
           transport = new SSEClientTransport(new URL(serverConfig.url));
         }
       } else {
@@ -322,14 +322,14 @@ class MCPServerManager {
       // Test basic functionality
       try {
         await client.listTools();
-      } catch (error) {
+      } catch {
         // It's okay if this fails, we just want to test the connection
       }
 
       await transport.close();
       return true;
-    } catch (error) {
-      console.error("Connection test failed:", error);
+    } catch {
+      console.error("Connection test failed");
       return false;
     }
   }

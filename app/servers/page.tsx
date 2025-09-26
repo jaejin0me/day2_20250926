@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Server, Settings, Trash2, Power, PowerOff, AlertCircle, CheckCircle, Clock, ArrowLeft, MessageCircle } from "lucide-react";
+import { Plus, ArrowLeft, Server } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,7 +27,7 @@ export default function ServersPage() {
     if (savedData) {
       try {
         const parsed: MCPServersData = JSON.parse(savedData);
-        const serversWithDates = parsed.servers.map((server: any) => ({
+        const serversWithDates = parsed.servers.map((server: MCPServer) => ({
           ...server,
           // Migrate old servers to have transport field
           transport: server.transport || "stdio",

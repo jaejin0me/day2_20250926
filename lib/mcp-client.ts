@@ -19,7 +19,7 @@ export interface MCPConnection {
   tools?: Array<{
     name: string;
     description?: string;
-    inputSchema?: any;
+    inputSchema?: Record<string, unknown>;
   }>;
   prompts?: Array<{
     name: string;
@@ -37,11 +37,11 @@ export class MCPClientManager {
   private eventListeners = new Set<(event: MCPClientEvent) => void>();
 
   // 연결 상태 변화 이벤트
-  addEventListener(callback: (event: MCPClientEvent) => void) {
+  addEventListener(callback: (event: MCPClientEvent) => void): void {
     this.eventListeners.add(callback);
   }
 
-  removeEventListener(callback: (event: MCPClientEvent) => void) {
+  removeEventListener(callback: (event: MCPClientEvent) => void): void {
     this.eventListeners.delete(callback);
   }
 
@@ -56,15 +56,15 @@ export class MCPClientManager {
   }
 
   // Update connection info from server response
-  updateConnection(serverId: string, connectionInfo: any) {
+  updateConnection(serverId: string, connectionInfo: Record<string, unknown>) {
     if (connectionInfo) {
       const connection: MCPConnection = {
         server: { id: serverId } as MCPServer,
         isConnected: true,
-        capabilities: connectionInfo.capabilities,
-        resources: connectionInfo.resources,
-        tools: connectionInfo.tools,
-        prompts: connectionInfo.prompts
+        capabilities: connectionInfo.capabilities as { resources?: boolean; tools?: boolean; prompts?: boolean },
+        resources: connectionInfo.resources as Array<{ uri: string; name: string; mimeType?: string; description?: string }>,
+        tools: connectionInfo.tools as Array<{ name: string; description?: string; inputSchema?: Record<string, unknown> }>,
+        prompts: connectionInfo.prompts as Array<{ name: string; description?: string; arguments?: Array<{ name: string; description?: string; required?: boolean }> }>
       };
       
       this.connections.set(serverId, connection);
@@ -98,7 +98,7 @@ export class MCPClientManager {
     return Array.from(this.connections.values()).filter(conn => conn.isConnected);
   }
 
-  async callTool(serverId: string, toolName: string, args: Record<string, any>) {
+  async callTool(serverId: string, toolName: string, args: Record<string, unknown>): Promise<unknown> {
     try {
       const response = await fetch("/api/mcp/tools", {
         method: "POST",
@@ -177,21 +177,21 @@ export type MCPClientEvent =
       type: "tool_called";
       serverId: string;
       toolName: string;
-      args: Record<string, any>;
-      result: any;
+      args: Record<string, unknown>;
+      result: unknown;
     }
   | {
       type: "resource_read";
       serverId: string;
       uri: string;
-      result: any;
+      result: unknown;
     }
   | {
       type: "prompt_retrieved";
       serverId: string;
       promptName: string;
-      args: Record<string, any>;
-      result: any;
+      args: Record<string, unknown>;
+      result: unknown;
     };
 
 // Global instance

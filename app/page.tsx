@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Settings, Send, Bot, Plus, Server } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,10 @@ export default function ChatPage() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // 현재 활성 채팅방의 메시지들
-  const currentMessages = chatRooms.find(room => room.id === activeRoomId)?.messages || [];
+  const currentMessages = useMemo(() => 
+    chatRooms.find(room => room.id === activeRoomId)?.messages || [], 
+    [chatRooms, activeRoomId]
+  );
 
   // localStorage에서 채팅방 데이터 불러오기
   useEffect(() => {
@@ -32,11 +35,11 @@ export default function ChatPage() {
     if (savedData) {
       try {
         const parsed: ChatRoomsData = JSON.parse(savedData);
-        const roomsWithDates = parsed.rooms.map((room: any) => ({
+        const roomsWithDates = parsed.rooms.map((room: ChatRoom) => ({
           ...room,
           createdAt: new Date(room.createdAt),
           updatedAt: new Date(room.updatedAt),
-          messages: room.messages.map((msg: any) => ({
+          messages: room.messages.map((msg: Message) => ({
             ...msg,
             timestamp: new Date(msg.timestamp),
           })),
@@ -128,6 +131,7 @@ export default function ChatPage() {
     setStreamingMessage("");
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const updateCurrentRoomMessages = (newMessages: Message[]) => {
     if (!activeRoomId) return;
     
@@ -370,7 +374,7 @@ export default function ChatPage() {
             <h2 className="text-2xl font-semibold mb-2">AI와 대화를 시작하세요</h2>
             <p className="text-muted-foreground max-w-md">
               아래 입력창에 메시지를 입력하여 AI와 대화할 수 있습니다.
-              "/" 를 입력하면 프롬프트 힌트를 확인할 수 있습니다.
+              &quot;/&quot; 를 입력하면 프롬프트 힌트를 확인할 수 있습니다.
             </p>
           </div>
           ) : (

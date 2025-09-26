@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Settings, Send, Bot, Plus } from "lucide-react";
+import { Settings, Send, Bot, Plus, Server } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { MessageRenderer } from "@/components/MessageRenderer";
 import { ChatSidebar } from "@/components/ChatSidebar";
@@ -337,6 +338,12 @@ export default function ChatPage() {
             >
               모든 채팅 삭제
             </Button>
+            <Link href="/servers">
+              <Button variant="outline" size="sm">
+                <Server className="w-4 h-4 mr-2" />
+                MCP 서버
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon">
               <Settings className="w-5 h-5" />
             </Button>
